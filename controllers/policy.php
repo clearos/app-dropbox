@@ -66,6 +66,6 @@ class Policy extends Groups
 
     function __construct()
     {
-        parent::__construct('dropbox', array('dropbox_plugin'));
+        parent::__construct('dropbox', array('user_dropbox_plugin'));
     }
 }

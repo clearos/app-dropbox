@@ -149,7 +149,7 @@ class Dropbox extends Daemon
         clearos_profile(__METHOD__, __LINE__);
         try {
             $group_factory = new Group_Factory();
-            $group = $group_factory->create('dropbox_plugin');
+            $group = $group_factory->create('user_dropbox_plugin');
             $group_info = $group->get_info();
             $disabled_users = $this->get_disabled_users();
             $configured_users = $this->get_configured_users();
@@ -334,7 +334,7 @@ class Dropbox extends Daemon
             $users = $user_manager->get_core_details();
 
             $group_factory = new Group_Factory();
-            $group = $group_factory->create('dropbox_plugin');
+            $group = $group_factory->create('user_dropbox_plugin');
             $group_info = $group->get_info();
             foreach ($users as $username => $details) {
 
