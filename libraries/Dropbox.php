@@ -112,6 +112,8 @@ class Dropbox extends Daemon
     const FILE_CONFIG = '/etc/clearos/dropbox.conf';
     const COMMAND_DROPBOX = '/usr/bin/dropbox';
     const FILE_USER_INIT_LOG = '/home/%s/.dropbox/init.log';
+    const PATH_USER_DEFAULT = '/home/%s/Dropbox';
+    const PATH_USER_CONFIG = '/home/%s/.dropbox';
 
     ///////////////////////////////////////////////////////////////////////////////
     // V A R I A B L E S
@@ -210,15 +212,14 @@ class Dropbox extends Daemon
         if ($this->get_init_user() != NULL)
             throw new Account_Initialize_Busy_Exception();
 
-        $folder = new Folder("/home/$username");
-        if (!$folder->exists())
+        $home = new Folder("/home/$username");
+        if (!$home->exists())
             throw new Engine_Exception(lang('dropbox_missing_home_folder'), CLEAROS_ERROR);
 
         // Create this...init scripts need to write to log file
-        $folder = new Folder("/home/$username/.dropbox");
+        $folder = new Folder(sprintf(self::PATH_USER_CONFIG, $username));
         if (!$folder->exists())
             $folder->create($username, 'webconfig', '0700');
-
 
         try {
             // Touch log file where init script will log to
@@ -258,7 +259,7 @@ class Dropbox extends Daemon
             $configured_users = $this->get_configured_users();
             $disabled_users = $this->get_disabled_users();
             foreach ($contents as $line) {
-                if (preg_match("/.*(https.*en_US).*/", $line, $match)) {
+                if (preg_match("/.*(https.*cl=[\w_]+)\s+.*/", $line, $match)) {
                     if (!in_array($username, $configured_users) && !in_array($username, $disabled_users)) {
                         $configured_users[] = $username;
                         $this->set_configured_users($configured_users);
@@ -297,7 +298,7 @@ class Dropbox extends Daemon
     }
 
     /**
-     * Get user initialize status.
+     * Get folder status.
      *
      * @param String $username username
      *
@@ -308,12 +309,32 @@ class Dropbox extends Daemon
     {
         clearos_profile(__METHOD__, __LINE__);
         try {
-            $folder = new Folder("/home/$username/Dropbox");
+            $folder = new Folder(sprintf(self::PATH_USER_DEFAULT, $username), TRUE);
             if ($folder->exists())
                 return TRUE;
         } catch (Exception $e) {
             return FALSE;
         }
+    }
+
+    /**
+     * Get folder size.
+     *
+     * @param String $username username
+     *
+     * @return int
+     *
+     * @throws Folder_Not_Found_Exception
+     */
+
+    public function get_folder_size($username)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+        $folder = new Folder(sprintf(self::PATH_USER_DEFAULT, $username), TRUE);
+        if ($folder->exists())
+            return $folder->get_size();
+        else
+            throw new Folder_Not_Found_Exception();
     }
 
     /**
@@ -342,9 +363,8 @@ class Dropbox extends Daemon
                 if (in_array($username, $group_info['core']['members']))
                     $enabled = TRUE;
 
-                $folder = new Folder("/home/$username/Dropbox");
                 try {
-                    $size = $folder->get_size();
+                    $size = $this->get_folder_size($username);
                     if ($enabled)
                         $status = lang('dropbox_status_running');
                 } catch (Folder_Not_Found_Exception $e) {
@@ -359,7 +379,7 @@ class Dropbox extends Daemon
                 $info[$username] = array(
                     'enabled' => $enabled,
                     'status' => $status,
-                    'size' => $size 
+                    'size' => $this->get_folder_size($username)
                 );
                 
             }
@@ -504,12 +524,12 @@ class Dropbox extends Daemon
         clearos_profile(__METHOD__, __LINE__);
 
         try {
-            $folder = new Folder("/home/$username/.dropbox", TRUE);
-            if ($folder->exists())
-                $folder->delete(TRUE);
-            $folder = new Folder("/home/$username/Dropbox", TRUE);
-            if ($folder->exists())
-                $folder->delete(TRUE);
+            $config = new Folder(sprintf(self::PATH_USER_CONFIG, $username), TRUE);
+            if ($config->exists())
+                $config->delete(TRUE);
+            $home = new Folder(sprintf(self::PATH_USER_DEFAULT, $username), TRUE);
+            if ($home->exists())
+                $home->delete(TRUE);
             $configured_users = $this->get_configured_users();
             $disabled_users = $this->get_disabled_users();
             $update = FALSE;
