@@ -379,7 +379,7 @@ class Dropbox extends Daemon
                 $info[$username] = array(
                     'enabled' => $enabled,
                     'status' => $status,
-                    'size' => $this->get_folder_size($username)
+                    'size' => $size
                 );
                 
             }
