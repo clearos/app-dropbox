@@ -217,7 +217,7 @@ class Dropbox extends Daemon
             throw new Engine_Exception(lang('dropbox_missing_home_folder'), CLEAROS_ERROR);
 
         // Create this...init scripts need to write to log file
-        $folder = new Folder(sprintf(self::PATH_USER_CONFIG, $username));
+        $folder = new Folder(sprintf(self::PATH_USER_CONFIG, $username), TRUE);
         if (!$folder->exists())
             $folder->create($username, 'webconfig', '0700');
 
