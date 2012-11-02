@@ -220,12 +220,16 @@ class Dropbox extends Daemon
         $folder = new Folder(sprintf(self::PATH_USER_CONFIG, $username), TRUE);
         if (!$folder->exists())
             $folder->create($username, 'webconfig', '0700');
+        else
+            $folder->chown($username, 'webconfig');
 
         try {
             // Touch log file where init script will log to
             $log = new File(sprintf(self::FILE_USER_INIT_LOG, $username), TRUE);
             if (!$log->exists())
                 $log->create($username, 'webconfig', '0660');
+            else
+                $log->chown($username, 'webconfig');
 
 
             if (!$this->get_running_state() && !$this->get_boot_state())
