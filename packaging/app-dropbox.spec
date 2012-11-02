@@ -15,7 +15,7 @@ Requires: app-base
 Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.  It allows users to tie a folder located on the server in the user's home directory to a Dropbox account of their choosing.
 
 %package core
-Summary: Dropbox - APIs and install
+Summary: Dropbox - Core
 License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
@@ -37,7 +37,6 @@ mkdir -p -m 755 %{buildroot}/usr/clearos/apps/dropbox
 cp -r * %{buildroot}/usr/clearos/apps/dropbox/
 
 install -D -m 0644 packaging/app-dropbox.cron %{buildroot}/etc/cron.d/app-dropbox
-install -D -m 0755 packaging/app-dropbox.init %{buildroot}/etc/init.d/dropbox
 install -D -m 0644 packaging/dropbox.conf %{buildroot}/etc/clearos/dropbox.conf
 install -D -m 0744 packaging/dropboxconf %{buildroot}/usr/sbin/dropboxconf
 
@@ -83,6 +82,5 @@ exit 0
 /usr/clearos/apps/dropbox/language
 /usr/clearos/apps/dropbox/libraries
 /etc/cron.d/app-dropbox
-/etc/init.d/dropbox
 %config(noreplace) /etc/clearos/dropbox.conf
 /usr/sbin/dropboxconf

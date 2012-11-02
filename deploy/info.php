@@ -33,6 +33,7 @@ $app['controllers']['policy']['title'] = lang('base_app_policy');
 
 $app['core_requires'] = array(
     'dropbox',
+    'app-user-dropbox-plugin',
     'app-users-core',
     'app-samba-core'
 );
@@ -45,12 +46,6 @@ $app['core_file_manifest'] = array(
         'group' => 'root',
         'config' => TRUE,
         'config_params' => 'noreplace',
-    ),
-    'app-dropbox.init' => array(
-        'target' => '/etc/init.d/dropbox',
-        'mode' => '0755',
-        'owner' => 'root',
-        'group' => 'root',
     ),
     'app-dropbox.cron' => array(
         'target' => '/etc/cron.d/app-dropbox',
