@@ -15,13 +15,12 @@ Requires: app-base
 Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.  It allows users to tie a folder located on the server in the user's home directory to a Dropbox account of their choosing.
 
 %package core
-Summary: Dropbox - Core
+Summary: Dropbox - APIs and install
 License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
 Requires: dropbox
 Requires: app-users-core
-Requires: app-samba-core
 
 %description core
 Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.  It allows users to tie a folder located on the server in the user's home directory to a Dropbox account of their choosing.

@@ -33,9 +33,7 @@ $app['controllers']['policy']['title'] = lang('base_app_policy');
 
 $app['core_requires'] = array(
     'dropbox',
-    'app-user-dropbox-plugin',
     'app-users-core',
-    'app-samba-core'
 );
 
 $app['core_file_manifest'] = array(
