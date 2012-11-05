@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Set default start/boot
+#-----------------------
+
+logger -p local6.notice -t installer "app-dropbox-core - enabling Dropbox"
+chkconfig dropbox on
+
+logger -p local6.notice -t installer "app-dropbox-core - starting Dropbox"
+service dropbox start >/dev/null 2>&1
