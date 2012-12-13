@@ -4,7 +4,7 @@
 // General information
 ///////////////////////////////////////////////////////////////////////////// 
 $app['basename'] = 'dropbox';
-$app['version'] = '1.0.0';
+$app['version'] = '1.0.1';
 $app['release'] = '1';
 $app['vendor'] = 'ClearFoundation';
 $app['packager'] = 'ClearFoundation';
@@ -63,4 +63,11 @@ $app['core_file_manifest'] = array(
         'owner' => 'root',
         'group' => 'root',
     )
+);
+$app['delete_dependency'] = array(
+    'app-dropbox-core',
+    'app-user-dropbox',
+    'app-user-dropbox-core',
+    'app-user-dropbox-extension-core',
+    'dropbox'
 );
