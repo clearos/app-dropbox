@@ -31,13 +31,8 @@ $app['controllers']['policy']['title'] = lang('base_app_policy');
 // Packaging
 /////////////////////////////////////////////////////////////////////////////
 
-// FIXME: this app-samba-core dependency is for handling home directory
-// creation.  This will be changed to something more generic in a future 
-// release.
-
 $app['core_requires'] = array(
     'dropbox',
-    'app-samba-core',
     'app-users-core',
     'app-user-dropbox-plugin-core',
 );
