@@ -1,7 +1,7 @@
 
 Name: app-dropbox
 Epoch: 1
-Version: 1.4.14
+Version: 1.4.30
 Release: 1%{dist}
 Summary: Dropbox
 License: GPLv3
