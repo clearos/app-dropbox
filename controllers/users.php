@@ -3,9 +3,9 @@
 /**
  * Dropbox status controller
  *
- * @category   Apps
- * @package    Dropbox
- * @subpackage Controllers
+ * @category   apps
+ * @package    dropbox
+ * @subpackage controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU General Public License version 3 or later
@@ -47,9 +47,9 @@ require_once $bootstrap . '/bootstrap.php';
 /**
  * Dropbox status controller
  *
- * @category   Apps
- * @package    Dropbox
- * @subpackage Controllers
+ * @category   apps
+ * @package    dropbox
+ * @subpackage controllers
  * @author     ClearFoundation <developer@clearfoundation.com>
  * @copyright  2012 ClearFoundation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU General Public License version 3 or later
