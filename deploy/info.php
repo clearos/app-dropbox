@@ -4,7 +4,7 @@
 // General information
 ///////////////////////////////////////////////////////////////////////////// 
 $app['basename'] = 'dropbox';
-$app['version'] = '1.4.30';
+$app['version'] = '1.4.31';
 $app['release'] = '1';
 $app['vendor'] = 'ClearFoundation';
 $app['packager'] = 'ClearFoundation';
@@ -33,6 +33,7 @@ $app['controllers']['policy']['title'] = lang('base_app_policy');
 
 $app['core_requires'] = array(
     'dropbox',
+    'app-user-dropbox',
     'app-users-core',
     'app-user-dropbox-plugin-core',
 );

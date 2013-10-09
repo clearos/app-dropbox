@@ -1,7 +1,7 @@
 
 Name: app-dropbox
 Epoch: 1
-Version: 1.4.30
+Version: 1.4.31
 Release: 1%{dist}
 Summary: Dropbox
 License: GPLv3
@@ -20,6 +20,7 @@ License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
 Requires: dropbox
+Requires: app-user-dropbox
 Requires: app-users-core
 Requires: app-user-dropbox-plugin-core
 
