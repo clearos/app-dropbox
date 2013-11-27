@@ -1,7 +1,7 @@
 
 Name: app-dropbox
 Epoch: 1
-Version: 1.4.31
+Version: 1.5.15
 Release: 1%{dist}
 Summary: Dropbox
 License: GPLv3
@@ -77,7 +77,6 @@ exit 0
 %files core
 %defattr(-,root,root)
 %exclude /usr/clearos/apps/dropbox/packaging
-%exclude /usr/clearos/apps/dropbox/tests
 %dir /usr/clearos/apps/dropbox
 /usr/clearos/apps/dropbox/deploy
 /usr/clearos/apps/dropbox/language
