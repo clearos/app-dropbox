@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Upgrade to 2.10.28 requires restart
+#------------------------------------
+
+logger -p local6.notice -t installer "app-dropbox-core - conditinal restart after upgrade"
+
+ps aux | grep -v grep | grep dropbox > /dev/null
+result=$?
+if [ "${result}" -eq "0" ] ; then
+    /sbin/service dropbox restart
+    echo "Restarting Dropbox after upgrade"
+else
+    # Dropbox not running...do nothing
+fi
