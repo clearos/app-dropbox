@@ -10,6 +10,4 @@ result=$?
 if [ "${result}" -eq "0" ] ; then
     /sbin/service dropbox restart
     echo "Restarting Dropbox after upgrade"
-else
-    # Dropbox not running...do nothing
 fi
