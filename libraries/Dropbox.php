@@ -47,6 +47,7 @@ require_once $bootstrap . '/bootstrap.php';
 ///////////////////////////////////////////////////////////////////////////////
 
 clearos_load_language('dropbox');
+clearos_load_language('base');
 
 ///////////////////////////////////////////////////////////////////////////////
 // D E P E N D E N C I E S
@@ -361,7 +362,7 @@ class Dropbox extends Daemon
             $group_info = $groupobj->get_info();
             foreach ($users as $username => $details) {
 
-                $status = lang('dropbox_status_disabled');
+                $status = lang('base_disabled');
                 $enabled = FALSE;
 
                 if (in_array($username, $group_info['core']['members']))
@@ -370,7 +371,7 @@ class Dropbox extends Daemon
                 try {
                     $size = $this->get_folder_size($username);
                     if ($enabled)
-                        $status = lang('dropbox_status_running');
+                        $status = lang('base_running');
                 } catch (Folder_Not_Found_Exception $e) {
                     $size = 0;
                     if ($enabled)
@@ -378,7 +379,7 @@ class Dropbox extends Daemon
                 }
 
                 if (!$this->get_running_state())
-                    $status = lang('dropbox_status_service_stopped');
+                    $status = lang('base_stopped');
                 
                 $info[$username] = array(
                     'enabled' => $enabled,
@@ -577,7 +578,7 @@ class Dropbox extends Daemon
             $user_manager = $user_factory->create();
             $users = $user_manager->get_core_details();
             if (! array_key_exists($user, $users))
-                return $user . ' ' . lang('dropbox_user_is_invalid');
+                return $user . ' ' . lang('dropbox_user_invalid');
         } catch (Exception $e) {
             return clearos_exception_message($e);
         }
