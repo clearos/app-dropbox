@@ -18,7 +18,7 @@ $app['description'] = lang('dropbox_app_description');
 
 $app['name'] = lang('dropbox_app_name');
 $app['category'] = lang('base_category_cloud');
-$app['subcategory'] = lang('base_subcategory_file');
+$app['subcategory'] = lang('base_subcategory_applications');
 
 /////////////////////////////////////////////////////////////////////////////
 // Controllers
