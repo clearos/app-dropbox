@@ -14,3 +14,4 @@ $lang['dropbox_status_not_initialized'] = 'Pending user initialization';
 $lang['dropbox_user_invalid'] = 'Dropbox user is invalid.';
 $lang['dropbox_user_no_access'] = 'The administrator has not set up this account with Dropbox access.';
 $lang['dropbox_users'] = 'Dropbox Users';
+$lang['dropbox_starting_service'] = 'You will not be able to start the Dropbox service until at least one user has configured their account.  Login to Webconfig as a user (non-root) and run through the Dropbox syncronization setup.';

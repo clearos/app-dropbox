@@ -50,7 +50,7 @@ foreach ($users as $username => $info) {
         'anchors' => NULL,
         'details' => array(
             $username,
-            ($info['enabled'] ? '<div style=\'margin-left: 20;\' class=\'theme-field-checkbox-enabled\'></div>' : ''),
+            ($info['enabled'] ? lang('base_enabled') : lang('base_disabled')),
             $info['status'],
             ($info['enabled'] && $info['size'] > 0 ? byte_format($info['size']) : '---')
         )

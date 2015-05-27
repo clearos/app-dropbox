@@ -12,7 +12,7 @@ Requires: %{name}-core = 1:%{version}-%{release}
 Requires: app-base
 
 %description
-Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.  It allows users to tie a folder located on the server in the user's home directory to a Dropbox account of their choosing.
+Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.
 
 %package core
 Summary: Dropbox - Core
@@ -25,7 +25,7 @@ Requires: app-users-core
 Requires: app-user-dropbox-plugin-core
 
 %description core
-Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.  It allows users to tie a folder located on the server in the user's home directory to a Dropbox account of their choosing.
+Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.
 
 This package provides the core API and libraries.
 
