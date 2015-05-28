@@ -264,7 +264,7 @@ class Dropbox extends Daemon
             $configured_users = $this->get_configured_users();
             $disabled_users = $this->get_disabled_users();
             foreach ($contents as $line) {
-                if (preg_match("/.*(https.*nonce=[\w_]+)\s+.*/", $line, $match)) {
+                if (preg_match("/.*(https\S+)\s+.*/", $line, $match)) {
                     if (!in_array($username, $configured_users) && !in_array($username, $disabled_users)) {
                         $configured_users[] = $username;
                         $this->set_configured_users($configured_users);
