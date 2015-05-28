@@ -1,0 +1,4 @@
+#!/bin/sh
+
+logger -p local6.notice -t installer "app-dropbox - stopping all client daemons on un-install"
+/usr/bin/killall dropbox
