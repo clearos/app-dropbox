@@ -239,7 +239,7 @@ class Dropbox extends Daemon
             // TODO
             // Ugly hack...but how to start init scripts as user otherwise?  Don't want to stop/start all instances
             $this->set_init_user($username);
-            $this->restart();
+            $this->restart(FALSE);
             $this->set_init_user(NULL);
 
         } catch (Exception $e) {
