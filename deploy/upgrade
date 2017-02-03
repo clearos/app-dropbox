@@ -1,13 +1,18 @@
 #!/bin/sh
 
-# Upgrade to 2.10.28 requires restart
+# Upgrade to 19.4.12 requires restart
 #------------------------------------
 
-logger -p local6.notice -t installer "app-dropbox-core - conditinal restart after upgrade"
+logger -p local6.notice -t installer "app-dropbox-core - conditional restart after upgrade"
 
-ps aux | grep -v grep | grep dropbox > /dev/null
+/usr/bin/systemctl daemon-reload
+
+members=`getent group dropbox_plugin | sed 's/.*\://'`
 result=$?
 if [ "${result}" -eq "0" ] ; then
-    /sbin/service dropbox restart
-    echo "Restarting Dropbox after upgrade"
+    IFS=',' read -ra users <<< "$members"
+    echo "Restarting Dropbox for $user after upgrade"
+    for user in "${users[@]}"; do
+        /usr/bin/systemctl restart dropbox@$user.service
+    done
 fi

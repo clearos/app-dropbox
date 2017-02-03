@@ -52,16 +52,25 @@ foreach ($users as $username => $info) {
             $username,
             ($info['enabled'] ? lang('base_enabled') : lang('base_disabled')),
             $info['status'],
-            ($info['enabled'] && $info['size'] > 0 ? byte_format($info['size']) : '---')
+            ($info['enabled'] ? "<span id='dropbox_user_$username' data-size='0' class='dropbox_size' data-user='$username'></span>" : '---')
         )
     );
 
     $items[] = $item;
 }
+
 echo summary_table(
     lang('dropbox_users'),
     NULL,
     array(lang('base_username'), lang('base_enabled'), lang('base_status'), lang('dropbox_folder_size')),
     $items,
-    array('no_action' => TRUE)
+    array(
+        'no_action' => TRUE,
+        'sorting-type' => array(
+            NULL,
+            NULL,
+            NULL,
+            'custom'
+        )
+    )
 );

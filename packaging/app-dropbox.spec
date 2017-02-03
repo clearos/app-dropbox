@@ -1,7 +1,7 @@
 
 Name: app-dropbox
 Epoch: 1
-Version: 1.7.2
+Version: 2.3.1
 Release: 1%{dist}
 Summary: Dropbox
 License: GPLv3
@@ -19,7 +19,7 @@ Summary: Dropbox - Core
 License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
-Requires: dropbox >= 2.10.28
+Requires: dropbox >= 19.4.12
 Requires: app-user-dropbox >= 1:1.6.0
 Requires: app-users-core
 Requires: app-user-dropbox-plugin-core
@@ -37,9 +37,8 @@ This package provides the core API and libraries.
 mkdir -p -m 755 %{buildroot}/usr/clearos/apps/dropbox
 cp -r * %{buildroot}/usr/clearos/apps/dropbox/
 
-install -D -m 0644 packaging/app-dropbox.cron %{buildroot}/etc/cron.d/app-dropbox
 install -D -m 0644 packaging/dropbox.conf %{buildroot}/etc/clearos/dropbox.conf
-install -D -m 0744 packaging/dropboxconf %{buildroot}/usr/sbin/dropboxconf
+install -D -m 0644 packaging/dropbox.php %{buildroot}/var/clearos/base/daemon/dropbox.php
 
 %post
 logger -p local6.notice -t installer 'app-dropbox - installing'
@@ -81,6 +80,5 @@ exit 0
 /usr/clearos/apps/dropbox/deploy
 /usr/clearos/apps/dropbox/language
 /usr/clearos/apps/dropbox/libraries
-/etc/cron.d/app-dropbox
 %config(noreplace) /etc/clearos/dropbox.conf
-/usr/sbin/dropboxconf
+/var/clearos/base/daemon/dropbox.php

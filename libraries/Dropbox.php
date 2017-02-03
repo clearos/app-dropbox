@@ -7,7 +7,7 @@
  * @package    dropbox
  * @subpackage libraries
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2003-2011 ClearFoundation
+ * @copyright  2003-2017 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/dropbox/
  */
@@ -99,7 +99,7 @@ clearos_load_library('dropbox/Account_Initialize_Busy_Exception');
  * @package    dropbox
  * @subpackage libraries
  * @author     ClearFoundation <developer@clearfoundation.com>
- * @copyright  2003-2011 ClearFoundation
+ * @copyright  2003-2017 ClearFoundation
  * @license    http://www.gnu.org/copyleft/lgpl.html GNU Lesser General Public License version 3 or later
  * @link       http://www.clearfoundation.com/docs/developer/apps/dropbox/
  */
@@ -111,7 +111,7 @@ class Dropbox extends Daemon
     ///////////////////////////////////////////////////////////////////////////////
 
     const FILE_CONFIG = '/etc/clearos/dropbox.conf';
-    const COMMAND_DROPBOX = '/usr/bin/dropbox';
+    const FILE_CACHE_SIZE = 'dropbox-%s.size';
     const FILE_USER_INIT_LOG = '/home/%s/.dropbox/init.log';
     const PATH_USER_DEFAULT = '/home/%s/Dropbox';
     const PATH_USER_CONFIG = '/home/%s/.dropbox';
@@ -139,111 +139,71 @@ class Dropbox extends Daemon
     }
 
     /**
-     * Synchronises config file with user/admin settings.
+     * Is user linked to Dropbox.
      *
-     * @param bool $disable_restart disabled restart on change
+     * @param String $username username
      *
-     * @return void
-     * @throws Engine_Exception
+     * @return boolean
      */
 
-    public function sync_config($disable_restart = FALSE)
+    public function is_linked($username)
     {
         clearos_profile(__METHOD__, __LINE__);
+
         try {
-            $groupobj = Group_Factory::create('dropbox_plugin');
-            $group_info = $groupobj->get_info();
-            $disabled_users = $this->get_disabled_users();
-            $configured_users = $this->get_configured_users();
-            $updated_users = array();
-            $changes_found = FALSE;
-            foreach ($configured_users as $username) {
-                if (!in_array($username, $group_info['core']['members'])) {
-                    $changes_found = TRUE;
-                    continue;
-                }
-                if (in_array($username, $disabled_users)) {
-                    $changes_found = TRUE;
-                    continue;
-                }
-                if ($this->get_init_user() != NULL) {
-                    $changes_found = TRUE;
-                    $this->set_init_user(NULL);
-                }
-                $updated_users[] = $username;
+            $contents = $this->get_user_log($username);
+            foreach ($contents as $line) {
+                if (preg_match("/This computer is now linked to Dropbox/", $line))
+                    return TRUE;
             }
-
-            if ($changes_found)
-                $this->set_configured_users($updated_users);
-
-            $file = new File(self::FILE_CONFIG, TRUE);
-
-            if ($file->exists() && !$changes_found) {
-                // Let's check timestamp too...users disabling their account do not automatically trigger restart
-                $last_modified = $file->last_modified();
-                $one_day_ago = strtotime("-1 day");
-                if ($last_modified > $one_day_ago)
-                    $changes_found = TRUE;
-            }
-            if ($changes_found && !$disable_restart && $this->get_boot_state())
-                $this->restart();
-            
+            return FALSE;
         } catch (Exception $e) {
-            throw new Engine_Exception(clearos_exception_message($e), CLEAROS_ERROR);
+            return FALSE;
         }
     }
 
     /**
-     * Initializes an account.
+     * Is enabled.
      *
-     * @param String $username username
+     * @param String  $username username
      *
      * @return void
-     * @throws Account_Initialize_Busy_Exception, Engine_Exception
      */
 
-    public function init_account($username)
+    public function is_enabled($username)
     {
         clearos_profile(__METHOD__, __LINE__);
 
-        // Check to see if we're already initialized
-        if ($this->get_user_url_link($username) != NULL)
-            return;
+        $options['validate_exit_code'] = FALSE;
+        $options['env'] = 'LANG=en_US';
+        $shell = new Shell();
+        $shell->execute(parent::COMMAND_SYSTEMCTL, "is-enabled dropbox@$username.service", TRUE, $options);
+        if ($shell->get_last_output_line() == 'enabled')
+            return TRUE;
+        return FALSE;
+    }
 
-        if ($this->get_init_user() != NULL)
-            throw new Account_Initialize_Busy_Exception();
+    /**
+     * Set enable/disable.
+     *
+     * @param String  $username username
+     * @param boolean $enabled
+     *
+     * @return void
+     */
 
-        $home = new Folder("/home/$username");
-        if (!$home->exists())
-            throw new Engine_Exception(lang('dropbox_missing_home_folder'), CLEAROS_ERROR);
+    public function set_state($username, $enabled)
+    {
+        clearos_profile(__METHOD__, __LINE__);
 
-        // Create this...init scripts need to write to log file
-        $folder = new Folder(sprintf(self::PATH_USER_CONFIG, $username), TRUE);
-        if (!$folder->exists())
-            $folder->create($username, 'webconfig', '0700');
-        else
-            $folder->chown($username, 'webconfig');
-
-        try {
-            // Touch log file where init script will log to
-            $log = new File(sprintf(self::FILE_USER_INIT_LOG, $username), TRUE);
-            if (!$log->exists())
-                $log->create($username, 'webconfig', '0660');
-            else
-                $log->chown($username, 'webconfig');
-
-
-            if (!$this->get_running_state() && !$this->get_boot_state())
-                throw new Engine_Exception(lang('dropbox_service_not_running'), CLEAROS_ERROR);
-
-            // TODO
-            // Ugly hack...but how to start init scripts as user otherwise?  Don't want to stop/start all instances
-            $this->set_init_user($username);
-            $this->restart(FALSE);
-            $this->set_init_user(NULL);
-
-        } catch (Exception $e) {
-            throw new Engine_Exception(clearos_exception_message($e), CLEAROS_ERROR);
+        $options['validate_exit_code'] = FALSE;
+        $shell = new Shell();
+        if ($enabled) {
+            $shell->execute(parent::COMMAND_SYSTEMCTL, "enabled dropbox@$username.service", TRUE, $options);
+            $shell->execute(parent::COMMAND_SYSTEMCTL, "start dropbox@$username.service", TRUE, $options);
+        } else {
+            $shell->execute(parent::COMMAND_SYSTEMCTL, "disabled dropbox@$username.service", TRUE, $options);
+            $shell->execute(parent::COMMAND_SYSTEMCTL, "stop dropbox@$username.service", TRUE, $options);
         }
     }
 
@@ -261,16 +221,9 @@ class Dropbox extends Daemon
 
         try {
             $contents = $this->get_user_log($username);
-            $configured_users = $this->get_configured_users();
-            $disabled_users = $this->get_disabled_users();
             foreach ($contents as $line) {
-                if (preg_match("/.*(https\S+)\s+.*/", $line, $match)) {
-                    if (!in_array($username, $configured_users) && !in_array($username, $disabled_users)) {
-                        $configured_users[] = $username;
-                        $this->set_configured_users($configured_users);
-                    }
+                if (preg_match("/.*(https\S+)\s+.*/", $line, $match))
                     return $match[1];
-                }
             }
             return NULL;
         } catch (Exception $e) {
@@ -326,20 +279,37 @@ class Dropbox extends Daemon
      * Get folder size.
      *
      * @param String $username username
+     * @param boolean $force no cache
      *
      * @return int
      *
      * @throws Folder_Not_Found_Exception
      */
 
-    public function get_folder_size($username)
+    public function get_folder_size($username, $force = FALSE)
     {
         clearos_profile(__METHOD__, __LINE__);
+        $cache_time = 7200;
+        $file = new File(CLEAROS_CACHE_DIR . "/" . sprintf(self::FILE_CACHE_SIZE, $username));
+
+        $lastmod = 0;
+        if ($file->exists())
+            $lastmod = filemtime($file->get_filename());
+
+        if (!$force && $lastmod && (time() - $lastmod < $cache_time))
+            return $file->get_contents();
+
         $folder = new Folder(sprintf(self::PATH_USER_DEFAULT, $username), TRUE);
-        if ($folder->exists())
-            return $folder->get_size();
-        else
-            throw new Folder_Not_Found_Exception();
+        if (!$folder->exists())
+            return 0;
+
+        $size = $folder->get_size();
+        if ($file->exists())
+            $file->delete();
+
+        $file->create('webconfig', 'webconfig', '0640');
+        $file->add_lines($size);
+        return $size;
     }
 
     /**
@@ -369,7 +339,6 @@ class Dropbox extends Daemon
                     $enabled = TRUE;
 
                 try {
-                    $size = $this->get_folder_size($username);
                     if ($enabled)
                         $status = lang('base_running');
                 } catch (Folder_Not_Found_Exception $e) {
@@ -384,7 +353,7 @@ class Dropbox extends Daemon
                 $info[$username] = array(
                     'enabled' => $enabled,
                     'status' => $status,
-                    'size' => $size
+                    'size' => NULL
                 );
                 
             }
@@ -392,127 +361,6 @@ class Dropbox extends Daemon
         } catch (Exception $e) {
             throw new Engine_Exception(clearos_exception_message($e), CLEAROS_ERROR);
         }
-    }
-
-    /**
-     * Set dropbox init user.
-     *
-     * @param String $user user
-     *
-     * @return void
-     * @throws Account_Initialize_Busy_Exception, Validation_Exception
-     */
-
-    function set_init_user($user)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        if ($user != NULL)
-            Validation_Exception::is_valid($this->validate_user($user));
-
-        if ($user != NULL && $this->get_init_user() != NULL)
-            throw new Account_Initialize_Busy_Exception();
-
-        $this->_set_parameter('INIT_USER', ($user == NULL ? '' : $user));
-    }
-
-    /**
-     * Set dropbox disabled manual override.
-     *
-     * @param array $users users
-     *
-     * @return void
-     * @throws Validation_Exception
-     */
-
-    function set_disabled_users($users)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        foreach ($users as $user)
-            Validation_Exception::is_valid($this->validate_user($user));
-
-        $this->_set_parameter('USER_DISABLED', implode(' ', $users));
-    }
-
-    /**
-     * Set dropbox configured users.
-     *
-     * @param array $users users
-     *
-     * @return void
-     * @throws Validation_Exception
-     */
-
-    function set_configured_users($users)
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        foreach ($users as $user)
-            Validation_Exception::is_valid($this->validate_user($user));
-
-        $this->_set_parameter('DROPBOX_USERS', implode(' ', $users));
-    }
-
-    /**
-     * Get init user.
-     *
-     * @return array
-     */
-
-    function get_init_user()
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        if (!$this->is_loaded)
-            $this->_load_config();
-
-        if (isset($this->config['INIT_USER']) && $this->config['INIT_USER'] != '')
-            return $this->config['INIT_USER'];
-        else
-            return NULL;
-    }
-
-    /**
-     * Get dropbox user disable override.
-     *
-     * @return array
-     */
-
-    function get_disabled_users()
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        if (!$this->is_loaded)
-            $this->_load_config();
-
-        $empty_array = array();
-
-        if (isset($this->config['USER_DISABLED']) && $this->config['USER_DISABLED'] != '')
-            return explode(' ', $this->config['USER_DISABLED']);
-        else
-            return $empty_array;
-    }
-
-    /**
-     * Get dropbox configured users.
-     *
-     * @return array
-     */
-
-    function get_configured_users()
-    {
-        clearos_profile(__METHOD__, __LINE__);
-
-        if (!$this->is_loaded)
-            $this->_load_config();
-
-        $empty_array = array();
-
-        if (isset($this->config['DROPBOX_USERS']) && $this->config['DROPBOX_USERS'] != '')
-            return explode(' ', $this->config['DROPBOX_USERS']);
-        else
-            return $empty_array;
     }
 
     /**
@@ -532,29 +380,37 @@ class Dropbox extends Daemon
             $config = new Folder(sprintf(self::PATH_USER_CONFIG, $username), TRUE);
             if ($config->exists())
                 $config->delete(TRUE);
+
+            $options['validate_exit_code'] = FALSE;
+            $shell = new Shell();
+            $shell->execute(parent::COMMAND_SYSTEMCTL, "stop dropbox@$username.service", TRUE, $options);
+
             $home = new Folder(sprintf(self::PATH_USER_DEFAULT, $username), TRUE);
             if ($home->exists())
                 $home->delete(TRUE);
-            $configured_users = $this->get_configured_users();
-            $disabled_users = $this->get_disabled_users();
-            $update = FALSE;
-            if (in_array($username, $configured_users)) {
-                $pos = array_search($username, $configured_users);
-                unset($configured_users[$pos]);
-                $this->set_configured_users($configured_users);
-                $update = TRUE;
-            }
-            if (in_array($username, $disabled_users)) {
-                $pos = array_search($username, $disabled_users);
-                unset($disabled_users[$pos]);
-                $this->set_configured_users($disabled_users);
-                $update = TRUE;
-            }
-            if ($update && $this->get_boot_state())
-                $this->restart();
         } catch (Exception $e) {
             throw new Engine_Exception(clearos_exception_message($e), CLEAROS_ERROR);
         }
+    }
+
+    /**
+     * Returns list of systemd services.
+     *
+     * @return array list of systemd services
+     * @throws Engine_Exception
+     */
+
+    public function get_systemd_services()
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        $groupobj = Group_Factory::create('dropbox_plugin');
+        $group_info = $groupobj->get_info();
+
+        foreach ($group_info['core']['members'] as $user)
+            $services[] = 'dropbox@' . $user . '.service';
+
+        return $services;
     }
 
     ///////////////////////////////////////////////////////////////////////////////

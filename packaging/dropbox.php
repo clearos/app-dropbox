@@ -16,12 +16,14 @@ clearos_load_language('dropbox');
 ///////////////////////////////////////////////////////////////////////////////
 // C O N F I G L E T
 ///////////////////////////////////////////////////////////////////////////////
-// pid_file uses interface names, skip it
 
 $configlet = array(
 	'title' => lang('dropbox_app_name'),
 	'package' => 'dropbox',
 	'process_name' => 'dropbox',
-	'reloadable' => TRUE,
+    'multiservice' => TRUE,
+    'api_class' => 'Dropbox',
+    'api_namespace' => 'dropbox',
+	'reloadable' => FALSE,
 	'url' => '/app/dropbox'
 );

@@ -87,4 +87,29 @@ class Users extends ClearOS_Controller
 
         $this->page->view_form('dropbox/summary', $data, lang('dropbox_app_name'));
     }
+
+    /**
+     * Ajax request to get folder size
+     *
+     * @return JSON
+     */
+
+    function folder_size($username)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Content-type: application/json');
+
+        // Load libraries
+        //---------------
+
+        $this->load->library('dropbox/Dropbox');
+
+        try {
+            echo json_encode(array('code' => 0, 'username' => $username,'size' => $this->dropbox->get_folder_size($username)));
+        } catch (Exception $e) {
+            echo json_encode(array('code' => clearos_exception_code($e), 'errmsg' => clearos_exception_message($e)));
+        }
+    }
 }
