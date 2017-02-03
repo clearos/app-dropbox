@@ -113,6 +113,7 @@ class Dropbox extends Daemon
     const FILE_CONFIG = '/etc/clearos/dropbox.conf';
     const FILE_CACHE_SIZE = 'dropbox-%s.size';
     const FILE_USER_INIT_LOG = '/home/%s/.dropbox/init.log';
+    const FILE_USER_LINK = '/home/%s/.dropbox/info.json';
     const PATH_USER_DEFAULT = '/home/%s/Dropbox';
     const PATH_USER_CONFIG = '/home/%s/.dropbox';
 
@@ -151,11 +152,9 @@ class Dropbox extends Daemon
         clearos_profile(__METHOD__, __LINE__);
 
         try {
-            $contents = $this->get_user_log($username);
-            foreach ($contents as $line) {
-                if (preg_match("/This computer is now linked to Dropbox/", $line))
-                    return TRUE;
-            }
+            $file = new File(sprintf(self::FILE_USER_LINK, $username), TRUE);
+            if ($file->exists())
+                RETURN TRUE;
             return FALSE;
         } catch (Exception $e) {
             return FALSE;
@@ -179,6 +178,26 @@ class Dropbox extends Daemon
         $shell = new Shell();
         $shell->execute(parent::COMMAND_SYSTEMCTL, "is-enabled dropbox@$username.service", TRUE, $options);
         if ($shell->get_last_output_line() == 'enabled')
+            return TRUE;
+        return FALSE;
+    }
+
+    /**
+     * Get is running status for user.
+     *
+     * @param String  $username username
+     *
+     * @return void
+     */
+
+    public function is_running($username)
+    {
+        clearos_profile(__METHOD__, __LINE__);
+
+        $options['validate_exit_code'] = FALSE;
+        $shell = new Shell();
+        $shell->execute(parent::COMMAND_SYSTEMCTL, "is-active dropbox@$username.service", TRUE, $options);
+        if ($shell->get_last_output_line() == 'active')
             return TRUE;
         return FALSE;
     }
@@ -289,7 +308,7 @@ class Dropbox extends Daemon
     public function get_folder_size($username, $force = FALSE)
     {
         clearos_profile(__METHOD__, __LINE__);
-        $cache_time = 7200;
+        $cache_time = 3600;
         $file = new File(CLEAROS_CACHE_DIR . "/" . sprintf(self::FILE_CACHE_SIZE, $username));
 
         $lastmod = 0;

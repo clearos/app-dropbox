@@ -107,7 +107,7 @@ class Users extends ClearOS_Controller
         $this->load->library('dropbox/Dropbox');
 
         try {
-            echo json_encode(array('code' => 0, 'username' => $username,'size' => $this->dropbox->get_folder_size($username)));
+            echo json_encode(array('code' => 0, 'size' => $this->dropbox->get_folder_size($username)));
         } catch (Exception $e) {
             echo json_encode(array('code' => clearos_exception_code($e), 'errmsg' => clearos_exception_message($e)));
         }
