@@ -366,8 +366,14 @@ class Dropbox extends Daemon
                         $status = lang('dropbox_status_not_initialized');
                 }
 
-                if (!$this->get_running_state())
+                $options['validate_exit_code'] = FALSE;
+                $shell = new Shell();
+                $exit_code = $shell->execute(self::COMMAND_SYSTEMCTL, "status dropbox@" . $username . ".service", FALSE, $options);
+
+                if ($exit_code !== 0)
                     $status = lang('base_stopped');
+                else
+                    $status = lang('base_running');
                 
                 $info[$username] = array(
                     'enabled' => $enabled,

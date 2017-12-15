@@ -18,12 +18,13 @@ clearos_load_language('dropbox');
 ///////////////////////////////////////////////////////////////////////////////
 
 $configlet = array(
-	'title' => lang('dropbox_app_name'),
-	'package' => 'dropbox',
-	'process_name' => 'dropbox',
+    'title' => lang('dropbox_app_name'),
+    'package' => 'dropbox',
+    'process_name' => 'dropbox',
     'multiservice' => TRUE,
+    'individual_running' => TRUE,
     'api_class' => 'Dropbox',
     'api_namespace' => 'dropbox',
-	'reloadable' => FALSE,
-	'url' => '/app/dropbox'
+    'reloadable' => FALSE,
+    'url' => '/app/dropbox'
 );

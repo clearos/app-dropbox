@@ -1,7 +1,7 @@
 
 Name: app-dropbox
 Epoch: 1
-Version: 2.3.2
+Version: 2.3.3
 Release: 1%{dist}
 Summary: Dropbox
 License: GPLv3
@@ -22,6 +22,7 @@ Requires: app-base-core
 Requires: dropbox >= 19.4.12
 Requires: app-user-dropbox >= 1:1.6.0
 Requires: app-users-core
+Requires: app-base >= 1:2.4.13
 Requires: app-user-dropbox-plugin-core
 
 %description core
@@ -76,6 +77,7 @@ exit 0
 %files core
 %defattr(-,root,root)
 %exclude /usr/clearos/apps/dropbox/packaging
+%exclude /usr/clearos/apps/dropbox/unify.json
 %dir /usr/clearos/apps/dropbox
 /usr/clearos/apps/dropbox/deploy
 /usr/clearos/apps/dropbox/language
