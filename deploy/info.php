@@ -3,9 +3,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // General information
 ///////////////////////////////////////////////////////////////////////////// 
+
 $app['basename'] = 'dropbox';
-$app['version'] = '2.3.3';
-$app['release'] = '1';
+$app['version'] = '2.5.0';
 $app['vendor'] = 'ClearFoundation';
 $app['packager'] = 'ClearFoundation';
 $app['license'] = 'GPLv3';
@@ -39,11 +39,16 @@ $app['controllers']['policy']['title'] = lang('base_app_policy');
 // Packaging
 /////////////////////////////////////////////////////////////////////////////
 
+$app['requires'] = array(
+    'app-base',
+    'app-user-dropbox',
+);
+
 $app['core_requires'] = array(
     'dropbox >= 19.4.12',
-    'app-user-dropbox >= 1:1.6.0',
+    'app-user-dropbox-core >= 1:1.6.0',
     'app-users-core',
-    'app-base >= 1:2.4.13',
+    'app-base-core >= 1:2.4.13',
     'app-user-dropbox-plugin-core',
 );
 

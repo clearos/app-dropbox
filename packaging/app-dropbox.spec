@@ -1,28 +1,32 @@
 
 Name: app-dropbox
 Epoch: 1
-Version: 2.3.3
+Version: 2.5.0
 Release: 1%{dist}
 Summary: Dropbox
 License: GPLv3
-Group: ClearOS/Apps
+Group: Applications/Apps
+Packager: ClearFoundation
+Vendor: ClearFoundation
 Source: %{name}-%{version}.tar.gz
 Buildarch: noarch
 Requires: %{name}-core = 1:%{version}-%{release}
 Requires: app-base
+Requires: app-base
+Requires: app-user-dropbox
 
 %description
 Dropbox is a file hosting service operated by Dropbox, Inc. that offers cloud storage, file synchronization and client software.
 
 %package core
-Summary: Dropbox - Core
+Summary: Dropbox - API
 License: LGPLv3
-Group: ClearOS/Libraries
+Group: Applications/API
 Requires: app-base-core
 Requires: dropbox >= 19.4.12
-Requires: app-user-dropbox >= 1:1.6.0
+Requires: app-user-dropbox-core >= 1:1.6.0
 Requires: app-users-core
-Requires: app-base >= 1:2.4.13
+Requires: app-base-core >= 1:2.4.13
 Requires: app-user-dropbox-plugin-core
 
 %description core
